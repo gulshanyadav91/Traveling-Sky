@@ -1,6 +1,7 @@
 if (process.env.NODE_ENV != "production") {
   require("dotenv").config();
 }
+// require("dotenv").config();
 
 // console.log(process.env.SECRET);
 
@@ -74,7 +75,7 @@ const sessionOptions = {
 };
 
 app.get("/", (req, res) => {
-  res.send("this is the root route");
+  res.redirect("/listings");
 });
 
 //always write the session code before the flash code otherwise it will not work properly and write all the reoutes below these two codes
