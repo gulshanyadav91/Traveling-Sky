@@ -73,9 +73,9 @@ const sessionOptions = {
   },
 };
 
-// app.get("/", (req, res) => {
-//   res.send("this is the root route");
-// });
+app.get("/", (req, res) => {
+  res.send("this is the root route");
+});
 
 //always write the session code before the flash code otherwise it will not work properly and write all the reoutes below these two codes
 // always write the flashh code down the session code because if you write it up then it will not work properly
