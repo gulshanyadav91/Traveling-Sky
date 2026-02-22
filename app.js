@@ -1,273 +1,127 @@
-// if (process.env.NODE_ENV != "production") {
-//   require("dotenv").config();
-// }
-// // require("dotenv").config();
-
-// // console.log(process.env.SECRET);
-
-// const express = require("express");
-// const app = express();
-// const path = require("path");
-// const mongoose = require("mongoose");
-// const methodOverride = require("method-override");
-// const ejsMate = require("ejs-mate");
-// const ExpressError = require("./utils/ExpressError.js");
-// const session = require("express-session");
-// const MongoStore = require("connect-mongo");
-// // flash is used to show the flash messages on the page and then it will be removed after some time
-// const flash = require("connect-flash");
-
-// // this is for the password hashing
-// const passport = require("passport");
-// const LocalStrategy = require("passport-local");
-// const User = require("./models/user.js");
-
-// //THESE ARE COMMITED BECAUSE THESE ARE USELESS NOW IN THIS PAGE
-// // const Listing = require("./models/listing.js");
-// // const wrapAsync = require("./utils/wrapAsync.js");
-// // const { listingSchema, reviewSchema } = require("./schema.js");
-// // const Review = require("./models/review.js");
-
-// //this is for the express router so that we can understand the code easily
-// const listingRouter = require("./routes/listing.js");
-// const reviewRouter = require("./routes/review.js");
-// const userRouter = require("./routes/user.js");
-
-// //setUp for the ejs
-
-// app.set("view engine", "ejs");
-// app.set("views", path.join(__dirname, "views"));
-// app.use(express.urlencoded({ extended: true }));
-// app.use(methodOverride("_method"));
-// app.engine("ejs", ejsMate);
-// app.use(express.static(path.join(__dirname, "/public")));
-
-// const dbUrl = process.env.ATLASDB_URL;
-
-// const store = MongoStore.create({
-//   mongoUrl: dbUrl,
-//   crypto: {
-//     secret: process.env.SECRET,
-//   },
-//   touchAfter: 24 * 3600,
-// });
-
-// store.on("error", (err) => {
-//   console.error("ERROR IN MONGO SESSION STORE", err);
-// });
-
-// //this is for the session for the flash messages
-// //coockie will store the data for 1 week 7 * 24 * 60 * 60 * 1000
-// const SESSION_SECRET = process.env.SECRET || "dev-secret-change-me";
-
-// const sessionOptions = {
-//   store,
-//   secret: SESSION_SECRET,
-//   resave: false,
-//   saveUninitialized: true,
-//   // this will store the data upto 7 days from the starting days
-//   cookie: {
-//     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-//     maxAge: 7 * 24 * 60 * 60 * 1000,
-//     httpOnly: true,
-//     // secure: true, // enable in production with HTTPS
-//   },
-// };
-
-// app.get("/", (req, res) => {
-//   res.redirect("/listings");
-// });
-
-// //always write the session code before the flash code otherwise it will not work properly and write all the reoutes below these two codes
-// // always write the flashh code down the session code because if you write it up then it will not work properly
-// app.use(session(sessionOptions));
-// app.use(flash());
-
-// // this all are the 5 line for the passport authentication
-// //this is for the passport authentication always down the session code otherwise it will not work properly
-// app.use(passport.initialize());
-// app.use(passport.session()); //this is write here so that user don't have to enter the password for each request
-// passport.use(new LocalStrategy(User.authenticate())); // this method is used for login and signup and it will check whether the user is authenticated or not
-
-// // use static serialize and deserialize of model for passport session support
-// passport.serializeUser(User.serializeUser());
-// passport.deserializeUser(User.deserializeUser());
-
-// app.use((req, res, next) => {
-//   //we can also do like this but it is not good practice
-//   //res.locals.success = req.flash('success');
-//   //res.locals.error=req.flash('error');
-//   res.locals.success = req.flash("success");
-//   res.locals.error = req.flash("error");
-//   res.locals.currUser = req.user; // this is userd to stored the info about user who is currently logged in or not
-//   next();
-// });
-
-// app.use(async (req, res, next) => {
-//   //console.log(req.path)
-//   //console.log(req.query)
-//   if (!["/login", "/"].includes(req.path)) {
-//     req.session.returnTo = req.originalUrl; //original url is the url which is requested by the user
-//   }
-//   res.locals.currUser = req.user;
-//   next();
-// });
-
-// // this is used to authenticate the user by the passport and it will redirect to the home page if the user is logged in
-// // app.get("/demouser", async (req, res) => {
-// //   let fakeUser = new User({
-// //     email: "krishna@123",
-// //     username: "Krishna",
-// //   });
-
-// //   let registeredUser = await User.register(fakeUser, "helloworld"); // helloworld is a password and this register method will save the username and password in the database
-// //   res.send(registeredUser);
-// // });
-
-// //this is used for the express router we have to write this code so that we can use those all the routes
-// app.use("/listings", listingRouter);
-// app.use("/listings/:id/reviews", reviewRouter);
-// app.use("/", userRouter);
-
-// //this is the basic setUp for the MONGODB
-
-// main()
-//   .then(() => {
-//     console.log("connected to the mongoDb");
-//   })
-//   .catch((err) => {
-//     console.log(err);
-//   });
-
-// async function main(params) {
-//   await mongoose.connect(dbUrl);
-// }
-
-// // app.get("/testListing",async (req,res)=>{
-// //     let sampleList = new Listing({
-// //         title:"My new Villa",
-// //         description:"By the Beach",
-// //         price : 1200,
-// //         location:"Mau  (275101)",
-// //         country:"India",
-// //     });
-
-// //     await sampleList.save();
-// //     console.log("Sample is saved to the Db");
-// //     res.send("Succesfully data is inserted into the Db");
-
-// // })
-
-// // console.log("All are correctly connected successfully ");
-// // app.all("*", (req, res, next) => {
-// //   next(new ExpressError(404, "Page Not Found!"));
-// // });
-// // it is not working and i don't know why
-
-// //error handling middleware is used to handle the errors and it is present at the last of the code  so that it will be executed when any error occurs in the above routes.
-// app.use((err, req, res, next) => {
-//   let { statusCode = 500, message = " Something Went Wrong!" } = err;
-//   res.status(statusCode).render("error.ejs", { err });
-//   //   res.status(statusCode).send(message); //deconstruct the err so that we can access the statusCode and message separately
-//   //   res.send("Something went wrong");
-// });
-
-// app.listen(8080, () => {
-//   console.log("app is listening via port 8080");
-// });
-
-
-
+// ================= IMPORTS =================
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 const express = require("express");
 const app = express();
+const path = require("path");
 const mongoose = require("mongoose");
-const Listing = require("./models/listing.js");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const path = require("path");
+const ExpressError = require("./utils/ExpressError.js");
 
-// ------------------ EJS & Static Setup ------------------
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+const flash = require("connect-flash");
+
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js");
+
+// ROUTERS
+const listingRouter = require("./routes/listing.js");
+const reviewRouter = require("./routes/review.js");
+const userRouter = require("./routes/user.js");
+
+// ================= BASIC SETUP =================
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.engine("ejs", ejsMate);
+
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "/public")));
 
-// ------------------ MongoDB Atlas Setup ------------------
-// Use environment variable MONGO_URL (set this in Render Dashboard)
-const MONGO_URL = process.env.MONGO_URL;
+// ================= MONGODB CONNECTION =================
+const dbUrl = process.env.ATLASDB_URL;
 
-async function main() {
-    try {
-        await mongoose.connect(MONGO_URL, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-        console.log("✅ Connected to MongoDB Atlas");
-    } catch (err) {
-        console.log("❌ MongoDB connection error:", err);
-    }
+if (!dbUrl) {
+  console.log("❌ ATLASDB_URL not defined");
+  process.exit(1);
 }
-main();
 
-// ------------------ ROUTES ------------------
+async function connectDB() {
+  try {
+    await mongoose.connect(dbUrl);
+    console.log("✅ Connected to MongoDB Atlas");
+  } catch (err) {
+    console.log("❌ MongoDB connection error:", err);
+    process.exit(1);
+  }
+}
+connectDB();
+
+// ================= SESSION STORE =================
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  crypto: {
+    secret: process.env.SECRET || "dev-secret",
+  },
+  touchAfter: 24 * 3600,
+});
+
+store.on("error", (err) => {
+  console.log("SESSION STORE ERROR", err);
+});
+
+app.use(
+  session({
+    store,
+    secret: process.env.SECRET || "dev-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    },
+  })
+);
+
+app.use(flash());
+
+// ================= PASSPORT SETUP =================
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// ================= GLOBAL LOCALS =================
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser = req.user;
+  next();
+});
+
+// ================= ROUTES =================
 
 // Root
 app.get("/", (req, res) => {
-    res.send("This is the root route");
+  res.redirect("/listings");
 });
 
-// Index
-app.get("/listings", async (req, res) => {
-    const allListings = await Listing.find({});
-    res.render("listings/index.ejs", { allListings });
+// Routers
+app.use("/listings", listingRouter);
+app.use("/listings/:id/reviews", reviewRouter);
+app.use("/", userRouter);
+
+// ================= 404 HANDLER =================
+app.all("*", (req, res, next) => {
+  next(new ExpressError(404, "Page Not Found!"));
 });
 
-// New
-app.get("/listings/new", (req, res) => {
-    res.render("listings/new.ejs");
+// ================= ERROR HANDLER =================
+app.use((err, req, res, next) => {
+  let { statusCode = 500, message = "Something Went Wrong!" } = err;
+  res.status(statusCode).render("error.ejs", { err });
 });
 
-// Create
-app.post("/listings", async (req, res) => {
-    const newListing = new Listing(req.body.listing);
-    await newListing.save();
-    res.redirect("/listings");
-});
-
-// Show
-app.get("/listings/:id", async (req, res) => {
-    const { id } = req.params;
-    const listing = await Listing.findById(id);
-    res.render("listings/show.ejs", { listing });
-});
-
-// Edit
-app.get("/listings/:id/edit", async (req, res) => {
-    const { id } = req.params;
-    const listing = await Listing.findById(id);
-    res.render("listings/edit.ejs", { listing });
-});
-
-// Update
-app.put("/listings/:id", async (req, res) => {
-    const { id } = req.params;
-    await Listing.findByIdAndUpdate(id, { ...req.body.listing });
-    res.redirect(`/listings/${id}`);
-});
-
-// Delete
-app.delete("/listings/:id", async (req, res) => {
-    const { id } = req.params;
-    await Listing.findByIdAndDelete(id);
-    res.redirect("/listings");
-});
-
-// ------------------ PORT ------------------
-// Use Render dynamic port
+// ================= PORT =================
 const PORT = process.env.PORT || 8080;
+
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
